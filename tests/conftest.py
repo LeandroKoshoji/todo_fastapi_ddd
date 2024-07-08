@@ -7,12 +7,12 @@ from app.main import app
 from app.shared.infrastructure.database.database import Base
 
 
-@pytest.fixture()
+@pytest.fixture
 def client():
     return TestClient(app)
 
 
-@pytest.fixture()
+@pytest.fixture
 def session():
     engine = create_engine('sqlite:///:memory:')
     Base.metadata.create_all(engine)
