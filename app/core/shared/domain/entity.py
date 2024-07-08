@@ -3,7 +3,7 @@ from abc import ABC
 from dataclasses import dataclass, field
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Entity(ABC):
     id: uuid.UUID = field(default_factory=uuid.uuid4)
 
