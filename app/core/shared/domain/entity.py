@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 class Entity(ABC):
     id: uuid.UUID = field(default_factory=uuid.uuid4)
 
-    def __eq__(self, other: "Entity") -> bool:
+    def __eq__(self, other: 'Entity') -> bool:
         if not isinstance(other, self.__class__):
             return False
 

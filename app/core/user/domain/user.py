@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 
 from app.core.shared.domain.entity import Entity
 
+MAX_USERNAME_LENGTH = 255
+MIN_USERNAME_LENGTH = 3
+
 
 class UserId:
     id: uuid.UUID
@@ -15,20 +18,22 @@ class User(Entity):
     email: str
     hashed_password: str
     created_at: datetime.datetime = field(
-        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc), init=False)
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc),
+        init=False,
+    )
 
     def __post_init__(self):
         self.validate()
 
     def validate(self):
         if not self.username:
-            raise ValueError("Username is required")
-        if len(self.username) > 255:
-            raise ValueError("Username must be less than 255 characters")
-        if len(self.username) < 3:
-            raise ValueError("Username must be at least 3 characters")
+            raise ValueError('Username is required')
+        if len(self.username) > MAX_USERNAME_LENGTH:
+            raise ValueError('Username must be less than 255 characters')
+        if len(self.username) < MIN_USERNAME_LENGTH:
+            raise ValueError('Username must be at least 3 characters')
         if not self.email:
-            raise ValueError("Email is required")
+            raise ValueError('Email is required')
 
     def change_password(self, new_password: str):
         self.hashed_password = new_password
@@ -43,9 +48,9 @@ class User(Entity):
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "username": self.username,
-            "email": self.email,
-            "hashed_password": self.hashed_password,
-            "created_at": self.created_at
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'hashed_password': self.hashed_password,
+            'created_at': self.created_at,
         }
