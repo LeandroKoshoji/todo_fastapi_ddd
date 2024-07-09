@@ -27,7 +27,7 @@ class JWTService(JWTInterface):
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(
             to_encode, self.secret_key, algorithm=self.algorithm)
-        return encoded_jwt
+        return {'token': encoded_jwt, 'token_type': 'bearer', 'expires_in': expire.isoformat()}
 
     def verify_access_token(self, token: str) -> dict:
         try:
