@@ -48,9 +48,9 @@ class User(Entity):
 
     def to_dict(self):
         return {
-            'id': self.id,
+            'id': str(self.id),
             'username': self.username,
             'email': self.email,
             'hashed_password': self.hashed_password,
-            'created_at': self.created_at,
+            'created_at': self.created_at.isoformat(),
         }
