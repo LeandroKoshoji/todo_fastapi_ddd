@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, String, func
+from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
 
 from app.core.shared.infrastructure.database.database import Base
-from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
 
 
 class User(Base):
