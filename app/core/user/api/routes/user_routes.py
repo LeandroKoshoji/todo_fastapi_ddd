@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.shared.application.schemas.response import ResponseModel
 from app.core.shared.application.utils import success_response
 from app.core.shared.infrastructure.database.database import get_db
+from app.core.shared.security.password_hasher import PasswordHasher
 from app.core.user.api.schemas.user_schemas import CreateUserSchema
 from app.core.user.application.use_cases.create_user_use_case import (
     CreateUserUseCase,
@@ -30,8 +31,9 @@ class UserOut(BaseModel):
     status_code=status.HTTP_201_CREATED
 )
 def create_user(input: CreateUserSchema, db: Session = Depends(get_db)):
+    password_hasher = PasswordHasher()
     user_repository = SqlAlchemyUserRepository(db)
-    use_case = CreateUserUseCase(user_repository)
+    use_case = CreateUserUseCase(user_repository, password_hasher)
     command = CreateUserCommand(
         username=input.username, email=input.email, password=input.password)
     try:
