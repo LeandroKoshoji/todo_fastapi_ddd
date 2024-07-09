@@ -16,6 +16,17 @@ class CreateUserUseCase:
             # todo: adicionar service de hash de senha
         )
 
+        user_email_exists = self.user_repository.get_user_by_email(user.email)
+
+        if user_email_exists:
+            raise ValueError('User already exists')
+
         self.user_repository.save_user(user)
 
-        return UserCreatedEvent(id=user.id, username=user.username, email=user.email, created_at=user.created_at)
+        user_data = user.to_dict()
+        return UserCreatedEvent(
+            id=user_data['id'],
+            username=user_data['username'],
+            email=user_data['email'],
+            created_at=user_data['created_at']
+        )
