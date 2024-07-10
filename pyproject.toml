@@ -48,6 +48,8 @@ run = 'fastapi dev app/main.py'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=app -vv'
 post_test = 'coverage html'
+docker_dev_up = 'docker-compose -f docker-compose.dev.yml up --build'
+docker_dev_down = 'docker-compose -f docker-compose.dev.yml down'
 
 [build-system]
 requires = ["poetry-core"]
