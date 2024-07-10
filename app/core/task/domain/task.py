@@ -25,10 +25,10 @@ class Task(Entity):
     status: TaskStatus = TaskStatus.PENDING
     send_notification: bool = False
     created_at: datetime.datetime = field(
-        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc), init=False
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
     )
     updated_at: datetime.datetime = field(
-        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc), init=False
+        default_factory=lambda: datetime.datetime.now(datetime.timezone.utc)
     )
 
     def __post_init__(self):
@@ -43,10 +43,12 @@ class Task(Entity):
         if self.description and len(self.description) > MAX_DESCRIPTION_LENGTH:
             raise InvalidDomainRuleError(
                 'Description must be less than 255 characters')
-        if self.status not in TaskStatus:
-            raise InvalidDomainRuleError('Invalid status')
         if not self.user_id:
             raise InvalidDomainRuleError('User id is required')
+        try:
+            TaskStatus(self.status)
+        except ValueError:
+            raise InvalidDomainRuleError('Invalid status')
 
     def change_title(self, new_title: str):
         self.title = new_title
@@ -70,7 +72,7 @@ class Task(Entity):
             'title': self.title,
             'user_id': str(self.user_id),
             'description': self.description,
-            'status': self.status.value,
+            'status': self.status,
             'send_notification': self.send_notification,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
