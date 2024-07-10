@@ -4,6 +4,7 @@ from app.core.shared.security.interfaces import (
 )
 from app.core.user.domain.commands.login_user_command import LoginUserCommand
 from app.core.user.domain.events.user_loggedin_event import UserLoggedInEvent
+from app.core.user.domain.exceptions import InvalidCredentialsError
 from app.core.user.domain.user_repository import UserRepository
 
 
@@ -22,13 +23,13 @@ class LoginUserUseCase:
         user = self.user_repository.get_user_by_email(command.email)
 
         if not user:
-            raise ValueError('Invalid credentials')
+            raise InvalidCredentialsError()
 
         if not self.hash_service.verify_password(
             command.password,
             user.hashed_password
         ):
-            raise ValueError('Invalid credentials')
+            raise InvalidCredentialsError()
 
         token = self.jwt_service.create_access_token(
             data={'sub': str(user.id)})

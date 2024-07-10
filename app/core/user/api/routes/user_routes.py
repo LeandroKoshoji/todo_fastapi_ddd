@@ -14,19 +14,19 @@ from app.core.user.api.schemas.user_schemas import (
     LoginUserResponseSchema,
     LoginUserSchema,
 )
-from app.core.user.application.use_cases.create_user_use_case import (
-    CreateUserUseCase,
-)
-from app.core.user.application.use_cases.login_user_use_case import (
-    LoginUserUseCase,
+from app.core.user.application.factories.use_case_factory import (
+    create_create_user_use_case,
+    create_login_user_use_case,
 )
 from app.core.user.domain.commands.create_user_command import CreateUserCommand
 from app.core.user.domain.commands.login_user_command import LoginUserCommand
+from app.core.user.domain.exceptions import InvalidCredentialsError
 from app.core.user.infrastructure.repositories.sqlalchemy_user_repository import (
     SqlAlchemyUserRepository,
 )
 
 router = APIRouter()
+# todo: criar um arquivo para ser o handler dos erros de usuario
 
 
 @router.post(
@@ -35,9 +35,7 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED
 )
 def create_user(input: CreateUserSchema, db: Session = Depends(get_db)):
-    password_hasher = PasswordHasher()
-    user_repository = SqlAlchemyUserRepository(db)
-    use_case = CreateUserUseCase(user_repository, password_hasher)
+    use_case = create_create_user_use_case(db)
     command = CreateUserCommand(
         username=input.username, email=input.email, password=input.password)
     try:
@@ -52,14 +50,14 @@ def create_user(input: CreateUserSchema, db: Session = Depends(get_db)):
     response_model=ResponseModel[LoginUserResponseSchema]
 )
 def login_user(input: LoginUserSchema, db: Session = Depends(get_db)):
-    password_hasher = PasswordHasher()
-    user_repository = SqlAlchemyUserRepository(db)
-    jwt_service = JWTService()
-    use_case = LoginUserUseCase(user_repository, password_hasher, jwt_service)
+    use_case = create_login_user_use_case(db)
     command = LoginUserCommand(email=input.email, password=input.password)
     try:
         event = use_case.execute(command)
         return success_response(event, "User logged in successfully")
+
+    except InvalidCredentialsError as e:
+        raise HTTPException(status_code=401, detail=str(e))
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
