@@ -1,4 +1,5 @@
 from sqlalchemy import Column, DateTime, String, func
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
 
 from app.core.shared.infrastructure.database.database import Base
@@ -14,3 +15,6 @@ class User(Base):
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+    tasks = relationship("Task", back_populates="user",
+                         cascade="all, delete-orphan")

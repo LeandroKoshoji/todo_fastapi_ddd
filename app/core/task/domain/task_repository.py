@@ -1,6 +1,6 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
-from app.core.tasks.domain.task import Task
+from app.core.task.domain.task import Task
 
 
 class TaskRepository(ABC):

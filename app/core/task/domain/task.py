@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Optional
 
 from app.core.shared.domain.entity import Entity
-from app.core.tasks.domain.exceptions import InvalidDomainRuleError
+from app.core.task.domain.exceptions import InvalidDomainRuleError
 
 MAX_TITLE_LENGTH = 255
 MAX_DESCRIPTION_LENGTH = 255
