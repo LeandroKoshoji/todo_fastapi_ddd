@@ -71,8 +71,9 @@ class SqlAlchemyTaskRepository(TaskRepository):
         if filters.send_notification is not None:
             query = query.filter(
                 TaskModel.send_notification == filters.send_notification)
-        task_models = query.all()
-        return [self._map_to_domain(task_model) for task_model in task_models]
+        total = query.count()
+        task_models = query.offset(filters.offset).limit(filters.limit).all()
+        return [self._map_to_domain(task_model) for task_model in task_models], total
 
     def _map_to_domain(self, task_model: TaskModel) -> Task:
         return Task(

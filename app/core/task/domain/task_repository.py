@@ -5,10 +5,15 @@ import uuid
 
 from app.core.task.domain.task import Task, TaskStatus
 
+DEFAULT_LIMIT = 10
+DEFAULT_OFFSET = 0
+
 
 @dataclass
 class SearchTaskFilters:
     user_id: uuid.UUID
+    limit: int = DEFAULT_LIMIT
+    offset: int = DEFAULT_OFFSET
     title: Optional[str] = None
     description: Optional[str] = None
     status: Optional[TaskStatus] = None

@@ -4,7 +4,7 @@ from fastapi.params import Query
 from pydantic import BaseModel
 from pytest import Session
 
-from app.core.shared.application.utils import success_response
+from app.core.shared.application.utils import paginated_response, success_response
 from app.core.shared.infrastructure.database.database import get_db
 from app.core.shared.security.dependecies import get_current_user
 from app.core.task.application.use_cases.create_task_use_case import (
@@ -109,21 +109,35 @@ def search_tasks(
     description: Optional[str] = Query(None),
     status: Optional[TaskStatus] = Query(None),
     send_notification: Optional[bool] = Query(None),
+    page: int = Query(1, gt=0),
+    per_page: int = Query(10, gt=0),
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     task_repository = SqlAlchemyTaskRepository(db)
     use_case = SearchTasksUseCase(task_repository)
 
+    limit = per_page
+    offset = (page - 1) * per_page
+
     filters = SearchTaskFilters(
         user_id=current_user.get("id"),
+        limit=limit,
+        offset=offset,
         title=title,
         description=description,
         status=status,
-        send_notification=send_notification
+        send_notification=send_notification,
     )
     try:
-        tasks = use_case.execute(filters)
-        return success_response(tasks, "Tasks retrieved successfully")
+        tasks, total = use_case.execute(filters)
+
+        return paginated_response(
+            tasks,
+            "Tasks retrieved successfully",
+            page=page,
+            per_page=per_page,
+            total=total,
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -9,7 +9,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 app.include_router(user_router, tags=['auth'])
-app.include_router(task_router, prefix='/task', tags=['task'])
+app.include_router(task_router, prefix='/tasks', tags=['tasks'])
 
 
 @app.get('/')
