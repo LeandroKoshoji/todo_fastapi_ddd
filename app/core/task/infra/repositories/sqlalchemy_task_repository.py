@@ -55,6 +55,10 @@ class SqlAlchemyTaskRepository(TaskRepository):
             self.db.rollback()
             raise e
 
+    def get_tasks_by_user_id(self, user_id: uuid.UUID) -> list[Task]:
+        task_models = self.db.query(TaskModel).filter_by(user_id=user_id).all()
+        return [self._map_to_domain(task_model) for task_model in task_models]
+
     def _map_to_domain(self, task_model: TaskModel) -> Task:
         return Task(
             id=task_model.id,

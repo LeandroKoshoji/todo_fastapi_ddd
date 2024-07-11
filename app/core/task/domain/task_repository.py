@@ -17,14 +17,13 @@ class TaskRepository(ABC):
     def delete_task(self, task_id: uuid.UUID) -> None:
         raise NotImplementedError
 
+    @abstractmethod
+    def get_tasks_by_user_id(self, user_id: uuid.UUID) -> list[Task]:
+        raise NotImplementedError
     # @abstractmethod
     # def get_task_by_id(self, task_id: str) -> Task | None:
     #     raise NotImplementedError
 
     # @abstractmethod
     # def get_all_tasks(self) -> list[Task]:
-    #     raise NotImplementedError
-
-    # @abstractmethod
-    # def get_tasks_by_user_id(self, user_id: str) -> list[Task]:
     #     raise NotImplementedError
