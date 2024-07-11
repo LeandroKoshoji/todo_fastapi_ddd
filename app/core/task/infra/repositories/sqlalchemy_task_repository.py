@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from app.core.task.domain.task import Task
-from app.core.task.domain.task_repository import TaskRepository
+from app.core.task.domain.task_repository import SearchTaskFilters, TaskRepository
 from app.core.task.infra.models.task_model import Task as TaskModel
 
 
@@ -57,6 +57,21 @@ class SqlAlchemyTaskRepository(TaskRepository):
 
     def get_tasks_by_user_id(self, user_id: uuid.UUID) -> list[Task]:
         task_models = self.db.query(TaskModel).filter_by(user_id=user_id).all()
+        return [self._map_to_domain(task_model) for task_model in task_models]
+
+    def search_tasks(self, filters: SearchTaskFilters) -> list[Task]:
+        query = self.db.query(TaskModel).filter_by(user_id=filters.user_id)
+        if filters.title:
+            query = query.filter(TaskModel.title.ilike(f"%{filters.title}%"))
+        if filters.description:
+            query = query.filter(TaskModel.description.ilike(
+                f"%{filters.description}%"))
+        if filters.status:
+            query = query.filter(TaskModel.status == filters.status)
+        if filters.send_notification is not None:
+            query = query.filter(
+                TaskModel.send_notification == filters.send_notification)
+        task_models = query.all()
         return [self._map_to_domain(task_model) for task_model in task_models]
 
     def _map_to_domain(self, task_model: TaskModel) -> Task:
