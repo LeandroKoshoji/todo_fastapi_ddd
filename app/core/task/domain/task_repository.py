@@ -41,10 +41,6 @@ class TaskRepository(ABC):
     def search_tasks(self, filters: SearchTaskFilters) -> list[Task]:
         raise NotImplementedError
 
-    # @abstractmethod
-    # def get_task_by_id(self, task_id: str) -> Task | None:
-    #     raise NotImplementedError
-
-    # @abstractmethod
-    # def get_all_tasks(self) -> list[Task]:
-    #     raise NotImplementedError
+    @abstractmethod
+    def get_task_by_id(self, task_id: uuid.UUID) -> Task | None:
+        raise NotImplementedError

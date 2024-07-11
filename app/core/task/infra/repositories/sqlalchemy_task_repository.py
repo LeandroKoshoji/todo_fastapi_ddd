@@ -55,6 +55,16 @@ class SqlAlchemyTaskRepository(TaskRepository):
             self.db.rollback()
             raise e
 
+    def get_task_by_id(self, task_id: uuid.UUID) -> Task:
+        try:
+            task_model = self.db.query(TaskModel).filter_by(id=task_id).one()
+            return self._map_to_domain(task_model)
+        except NoResultFound as e:
+            raise ValueError(f"Task with id {task_id} not found")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise e
+
     def get_tasks_by_user_id(self, user_id: uuid.UUID) -> list[Task]:
         task_models = self.db.query(TaskModel).filter_by(user_id=user_id).all()
         return [self._map_to_domain(task_model) for task_model in task_models]
