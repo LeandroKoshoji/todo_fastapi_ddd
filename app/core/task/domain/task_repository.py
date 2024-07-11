@@ -8,9 +8,9 @@ class TaskRepository(ABC):
     def save_task(self, task: Task) -> Task:
         raise NotImplementedError
 
-    # @abstractmethod
-    # def update_task(self, task: Task) -> Task:
-    #     raise NotImplementedError
+    @abstractmethod
+    def update_task(self, task: Task) -> Task:
+        raise NotImplementedError
 
     # @abstractmethod
     # def get_task_by_id(self, task_id: str) -> Task | None:
