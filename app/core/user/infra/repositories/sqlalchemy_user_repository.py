@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.core.user.domain.user import User, UserId
 from app.core.user.domain.user_repository import UserRepository
-from app.core.user.infrastructure.models.user_model import User as UserModel
+from app.core.user.infra.models.user_model import User as UserModel
 
 
 class SqlAlchemyUserRepository(UserRepository):

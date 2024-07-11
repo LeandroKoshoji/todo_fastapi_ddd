@@ -10,7 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID as SQLAlchemyUUID
 from sqlalchemy.orm import relationship
 
-from app.core.shared.infrastructure.database.database import Base
+from app.core.shared.infra.database.database import Base
 from app.core.task.domain.task import TaskStatus
 
 

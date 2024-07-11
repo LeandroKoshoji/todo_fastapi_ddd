@@ -8,7 +8,7 @@ from app.core.user.application.use_cases.create_user_use_case import (
 from app.core.user.application.use_cases.login_user_use_case import (
     LoginUserUseCase,
 )
-from app.core.user.infrastructure.repositories.sqlalchemy_user_repository import (
+from app.core.user.infra.repositories.sqlalchemy_user_repository import (
     SqlAlchemyUserRepository,
 )
 

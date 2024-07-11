@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.core.shared.infrastructure.database.database import Base, engine
+from app.core.shared.infra.database.database import Base, engine
 from app.core.task.api.routes.task_routes import router as task_router
 from app.core.user.api.routes.user_routes import router as user_router
 

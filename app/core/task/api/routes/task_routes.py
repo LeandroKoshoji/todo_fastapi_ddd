@@ -9,7 +9,7 @@ from app.core.shared.application.utils import (
     paginated_response,
     success_response,
 )
-from app.core.shared.infrastructure.database.database import get_db
+from app.core.shared.infra.database.database import get_db
 from app.core.shared.security.dependecies import get_current_user
 from app.core.task.application.use_cases.create_task_use_case import (
     CreateTaskUseCase,

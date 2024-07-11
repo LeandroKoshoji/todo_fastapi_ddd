@@ -3,9 +3,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError
 from sqlalchemy.orm import Session
 
-from app.core.shared.infrastructure.database.database import get_db
+from app.core.shared.infra.database.database import get_db
 from app.core.shared.security.jwt import JWTService
-from app.core.user.infrastructure.repositories.sqlalchemy_user_repository import (
+from app.core.user.infra.repositories.sqlalchemy_user_repository import (
     SqlAlchemyUserRepository,
 )
 

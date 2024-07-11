@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.shared.application.schemas.response import ResponseModel
 from app.core.shared.application.utils import success_response
-from app.core.shared.infrastructure.database.database import get_db
+from app.core.shared.infra.database.database import get_db
 from app.core.shared.security.dependecies import get_current_user
 from app.core.shared.security.jwt import JWTService
 from app.core.shared.security.password_hasher import PasswordHasher
@@ -21,7 +21,7 @@ from app.core.user.application.factories.use_case_factory import (
 from app.core.user.domain.commands.create_user_command import CreateUserCommand
 from app.core.user.domain.commands.login_user_command import LoginUserCommand
 from app.core.user.domain.exceptions import InvalidCredentialsError
-from app.core.user.infrastructure.repositories.sqlalchemy_user_repository import (
+from app.core.user.infra.repositories.sqlalchemy_user_repository import (
     SqlAlchemyUserRepository,
 )
 
