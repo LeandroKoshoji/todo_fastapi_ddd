@@ -1,4 +1,6 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.params import Query
 from pydantic import BaseModel
 from pytest import Session
 
@@ -11,10 +13,13 @@ from app.core.task.application.use_cases.create_task_use_case import (
 from app.core.task.application.use_cases.delete_task_use_case import DeleteTaskUseCase
 from app.core.task.application.use_cases.edit_task_use_case import EditTaskUseCase
 from app.core.task.application.use_cases.list_all_tasks_by_user_use_case import ListAllTasksByUserUseCase
+from app.core.task.application.use_cases.search_tasks_use_case import SearchTasksUseCase
 from app.core.task.domain.commands.create_task_command import CreateTaskCommand
 from app.core.task.domain.commands.delete_task_command import DeleteTaskCommand
 from app.core.task.domain.commands.edit_task_command import EditTaskCommand
 from app.core.task.domain.exceptions import InvalidDomainRuleError
+from app.core.task.domain.task import TaskStatus
+from app.core.task.domain.task_repository import SearchTaskFilters
 from app.core.task.infra.repositories.sqlalchemy_task_repository import (
     SqlAlchemyTaskRepository,
 )
@@ -93,6 +98,32 @@ def list_all_tasks(current_user=Depends(get_current_user), db: Session = Depends
 
     try:
         tasks = use_case.execute(current_user.get("id"))
+        return success_response(tasks, "Tasks retrieved successfully")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get('/search')
+def search_tasks(
+    title: Optional[str] = Query(None),
+    description: Optional[str] = Query(None),
+    status: Optional[TaskStatus] = Query(None),
+    send_notification: Optional[bool] = Query(None),
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    task_repository = SqlAlchemyTaskRepository(db)
+    use_case = SearchTasksUseCase(task_repository)
+
+    filters = SearchTaskFilters(
+        user_id=current_user.get("id"),
+        title=title,
+        description=description,
+        status=status,
+        send_notification=send_notification
+    )
+    try:
+        tasks = use_case.execute(filters)
         return success_response(tasks, "Tasks retrieved successfully")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
