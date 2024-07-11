@@ -1,7 +1,7 @@
+import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
-import uuid
 
 from app.core.task.domain.task import Task, TaskStatus
 

@@ -1,6 +1,10 @@
 from typing import List
+
 from app.core.task.domain.task import Task
-from app.core.task.domain.task_repository import SearchTaskFilters, TaskRepository
+from app.core.task.domain.task_repository import (
+    SearchTaskFilters,
+    TaskRepository,
+)
 
 
 class SearchTasksUseCase:

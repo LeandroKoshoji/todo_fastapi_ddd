@@ -1,9 +1,13 @@
 import uuid
+
+from sqlalchemy.exc import NoResultFound, SQLAlchemyError
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
 from app.core.task.domain.task import Task
-from app.core.task.domain.task_repository import SearchTaskFilters, TaskRepository
+from app.core.task.domain.task_repository import (
+    SearchTaskFilters,
+    TaskRepository,
+)
 from app.core.task.infra.models.task_model import Task as TaskModel
 
 
@@ -38,7 +42,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
             task_model.send_notification = task.send_notification
             self.db.commit()
             return self._map_to_domain(task_model)
-        except NoResultFound as e:
+        except NoResultFound:
             raise ValueError(f"Task with id {task.id} not found")
         except SQLAlchemyError as e:
             self.db.rollback()
@@ -49,7 +53,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
             task_model = self.db.query(TaskModel).filter_by(id=task_id).one()
             self.db.delete(task_model)
             self.db.commit()
-        except NoResultFound as e:
+        except NoResultFound:
             raise ValueError(f"Task with id {task_id} not found")
         except SQLAlchemyError as e:
             self.db.rollback()
@@ -59,7 +63,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
         try:
             task_model = self.db.query(TaskModel).filter_by(id=task_id).one()
             return self._map_to_domain(task_model)
-        except NoResultFound as e:
+        except NoResultFound:
             raise ValueError(f"Task with id {task_id} not found")
         except SQLAlchemyError as e:
             self.db.rollback()
