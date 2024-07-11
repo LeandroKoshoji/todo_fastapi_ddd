@@ -13,6 +13,7 @@ from app.core.task.application.use_cases.create_task_use_case import (
 from app.core.task.application.use_cases.delete_task_use_case import DeleteTaskUseCase
 from app.core.task.application.use_cases.edit_task_use_case import EditTaskUseCase
 from app.core.task.application.use_cases.list_all_tasks_by_user_use_case import ListAllTasksByUserUseCase
+from app.core.task.application.use_cases.list_task_by_id_use_case import ListTaskByIdUseCase
 from app.core.task.application.use_cases.search_tasks_use_case import SearchTasksUseCase
 from app.core.task.domain.commands.create_task_command import CreateTaskCommand
 from app.core.task.domain.commands.delete_task_command import DeleteTaskCommand
@@ -80,7 +81,7 @@ def edit_task(task_id: str, input: CreateTaskSchema, current_user=Depends(get_cu
 
 
 @router.delete("/{task_id}", status_code=200)
-def delete_task(task_id: str, db: Session = Depends(get_db)):
+def delete_task(task_id: str, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
     task_repository = SqlAlchemyTaskRepository(db)
     use_case = DeleteTaskUseCase(task_repository)
     command = DeleteTaskCommand(id=task_id)
@@ -99,6 +100,18 @@ def list_all_tasks(current_user=Depends(get_current_user), db: Session = Depends
     try:
         tasks = use_case.execute(current_user.get("id"))
         return success_response(tasks, "Tasks retrieved successfully")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/{task_id}")
+def list_task_by_id(task_id: str, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+    task_repository = SqlAlchemyTaskRepository(db)
+    use_case = ListTaskByIdUseCase(task_repository)
+
+    try:
+        task = use_case.execute(task_id)
+        return success_response(task, "Task retrieved successfully")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
