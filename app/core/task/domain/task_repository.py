@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import uuid
 
 from app.core.task.domain.task import Task
 
@@ -12,12 +13,12 @@ class TaskRepository(ABC):
     def update_task(self, task: Task) -> Task:
         raise NotImplementedError
 
-    # @abstractmethod
-    # def get_task_by_id(self, task_id: str) -> Task | None:
-    #     raise NotImplementedError
+    @abstractmethod
+    def delete_task(self, task_id: uuid.UUID) -> None:
+        raise NotImplementedError
 
     # @abstractmethod
-    # def delete_task(self, task_id: str) -> None:
+    # def get_task_by_id(self, task_id: str) -> Task | None:
     #     raise NotImplementedError
 
     # @abstractmethod

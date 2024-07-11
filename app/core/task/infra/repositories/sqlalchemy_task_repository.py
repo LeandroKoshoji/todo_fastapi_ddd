@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError, NoResultFound
 
@@ -30,7 +31,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
 
     def update_task(self, task: Task) -> Task:
         try:
-            task_model = self.db.query(TaskModel).filter_by(id=task.id).first()
+            task_model = self.db.query(TaskModel).filter_by(id=task.id).one()
             task_model.title = task.title
             task_model.status = task.status
             task_model.description = task.description
@@ -39,6 +40,17 @@ class SqlAlchemyTaskRepository(TaskRepository):
             return self._map_to_domain(task_model)
         except NoResultFound as e:
             raise ValueError(f"Task with id {task.id} not found")
+        except SQLAlchemyError as e:
+            self.db.rollback()
+            raise e
+
+    def delete_task(self, task_id: uuid.UUID) -> None:
+        try:
+            task_model = self.db.query(TaskModel).filter_by(id=task_id).one()
+            self.db.delete(task_model)
+            self.db.commit()
+        except NoResultFound as e:
+            raise ValueError(f"Task with id {task_id} not found")
         except SQLAlchemyError as e:
             self.db.rollback()
             raise e
