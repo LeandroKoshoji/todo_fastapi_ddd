@@ -28,7 +28,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
             self.db.add(task_model)
             self.db.commit()
             self.db.refresh(task_model)
-            return self._map_to_domain(task_model)
+            return SqlAlchemyTaskRepository._map_to_domain(task_model)
         except SQLAlchemyError as e:
             self.db.rollback()
             raise e
@@ -41,7 +41,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
             task_model.description = task.description
             task_model.send_notification = task.send_notification
             self.db.commit()
-            return self._map_to_domain(task_model)
+            return SqlAlchemyTaskRepository._map_to_domain(task_model)
         except NoResultFound:
             raise ValueError(f"Task with id {task.id} not found")
         except SQLAlchemyError as e:
@@ -62,7 +62,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
     def get_task_by_id(self, task_id: uuid.UUID) -> Task:
         try:
             task_model = self.db.query(TaskModel).filter_by(id=task_id).one()
-            return self._map_to_domain(task_model)
+            return SqlAlchemyTaskRepository._map_to_domain(task_model)
         except NoResultFound:
             raise ValueError(f"Task with id {task_id} not found")
         except SQLAlchemyError as e:
@@ -71,7 +71,7 @@ class SqlAlchemyTaskRepository(TaskRepository):
 
     def get_tasks_by_user_id(self, user_id: uuid.UUID) -> list[Task]:
         task_models = self.db.query(TaskModel).filter_by(user_id=user_id).all()
-        return [self._map_to_domain(task_model) for task_model in task_models]
+        return [SqlAlchemyTaskRepository._map_to_domain(task_model) for task_model in task_models]
 
     def search_tasks(self, filters: SearchTaskFilters) -> list[Task]:
         query = self.db.query(TaskModel).filter_by(user_id=filters.user_id)
@@ -88,11 +88,11 @@ class SqlAlchemyTaskRepository(TaskRepository):
         total = query.count()
         task_models = query.offset(filters.offset).limit(filters.limit).all()
         return [
-            self._map_to_domain(task_model) for task_model in task_models
+            SqlAlchemyTaskRepository._map_to_domain(task_model) for task_model in task_models
         ], total
 
     @staticmethod
-    def _map_to_domain(self, task_model: TaskModel) -> Task:
+    def _map_to_domain(task_model: TaskModel) -> Task:
         return Task(
             id=task_model.id,
             title=task_model.title,
