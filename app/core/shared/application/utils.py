@@ -14,7 +14,13 @@ def success_response(data: Any, message: str = "Success"):
     )
 
 
-def paginated_response(data: Any, message: str, page: int, per_page: int, total: int):
+def paginated_response(
+        data: Any,
+        message: str,
+        page: int,
+        per_page: int,
+        total: int
+):
     return PaginatedResponseModel(
         status="success",
         message=message,

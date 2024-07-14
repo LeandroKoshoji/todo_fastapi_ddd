@@ -87,8 +87,11 @@ class SqlAlchemyTaskRepository(TaskRepository):
                 TaskModel.send_notification == filters.send_notification)
         total = query.count()
         task_models = query.offset(filters.offset).limit(filters.limit).all()
-        return [self._map_to_domain(task_model) for task_model in task_models], total
+        return [
+            self._map_to_domain(task_model) for task_model in task_models
+        ], total
 
+    @staticmethod
     def _map_to_domain(self, task_model: TaskModel) -> Task:
         return Task(
             id=task_model.id,

@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.params import Query
 from pydantic import BaseModel
-from pytest import Session
+from sqlalchemy.orm import Session
 
 from app.core.shared.application.utils import (
     paginated_response,
@@ -50,7 +50,11 @@ class CreateTaskSchema(BaseModel):
 
 
 @router.post("/")
-def create_task(input: CreateTaskSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+def create_task(
+    input: CreateTaskSchema,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     task_repository = SqlAlchemyTaskRepository(db)
     use_case = CreateTaskUseCase(task_repository)
 
@@ -72,7 +76,12 @@ def create_task(input: CreateTaskSchema, current_user=Depends(get_current_user),
 
 
 @router.put("/{task_id}", status_code=200)
-def edit_task(task_id: str, input: CreateTaskSchema, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+def edit_task(
+    task_id: str,
+    input: CreateTaskSchema,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     task_repository = SqlAlchemyTaskRepository(db)
     use_case = EditTaskUseCase(task_repository)
 
@@ -95,7 +104,11 @@ def edit_task(task_id: str, input: CreateTaskSchema, current_user=Depends(get_cu
 
 
 @router.delete("/{task_id}", status_code=200)
-def delete_task(task_id: str, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+def delete_task(
+    task_id: str,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     task_repository = SqlAlchemyTaskRepository(db)
     use_case = DeleteTaskUseCase(task_repository)
     command = DeleteTaskCommand(id=task_id)
@@ -147,7 +160,10 @@ def search_tasks(
 
 
 @router.get("/")
-def list_all_tasks(current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+def list_all_tasks(
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     task_repository = SqlAlchemyTaskRepository(db)
     use_case = ListAllTasksByUserUseCase(task_repository)
 
@@ -159,7 +175,11 @@ def list_all_tasks(current_user=Depends(get_current_user), db: Session = Depends
 
 
 @router.get("/{task_id}")
-def list_task_by_id(task_id: str, current_user=Depends(get_current_user), db: Session = Depends(get_db)):
+def list_task_by_id(
+    task_id: str,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     task_repository = SqlAlchemyTaskRepository(db)
     use_case = ListTaskByIdUseCase(task_repository)
 
