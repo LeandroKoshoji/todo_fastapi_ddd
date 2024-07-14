@@ -21,23 +21,13 @@ from app.core.task.api.schemas.task_schemas import (
     EditTaskSchema,
     ListTaskByIdResponseModel,
 )
-from app.core.task.application.use_cases.create_task_use_case import (
-    CreateTaskUseCase,
-)
-from app.core.task.application.use_cases.delete_task_use_case import (
-    DeleteTaskUseCase,
-)
-from app.core.task.application.use_cases.edit_task_use_case import (
-    EditTaskUseCase,
-)
-from app.core.task.application.use_cases.list_all_tasks_by_user_use_case import (
-    ListAllTasksByUserUseCase,
-)
-from app.core.task.application.use_cases.list_task_by_id_use_case import (
-    ListTaskByIdUseCase,
-)
-from app.core.task.application.use_cases.search_tasks_use_case import (
-    SearchTasksUseCase,
+from app.core.task.application.factories.task_use_case_factory import (
+    create_task_use_case_factory,
+    delete_task_use_case_factory,
+    edit_task_use_case_factory,
+    list_all_tasks_by_user_use_case_factory,
+    list_task_by_id_use_case_factory,
+    search_tasks_use_case_factory,
 )
 from app.core.task.domain.commands.create_task_command import CreateTaskCommand
 from app.core.task.domain.commands.delete_task_command import DeleteTaskCommand
@@ -45,9 +35,6 @@ from app.core.task.domain.commands.edit_task_command import EditTaskCommand
 from app.core.task.domain.exceptions import InvalidDomainRuleError
 from app.core.task.domain.task import TaskStatus
 from app.core.task.domain.task_repository import SearchTaskFilters
-from app.core.task.infra.repositories.sqlalchemy_task_repository import (
-    SqlAlchemyTaskRepository,
-)
 
 router = APIRouter()
 
@@ -62,8 +49,7 @@ def create_task(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    task_repository = SqlAlchemyTaskRepository(db)
-    use_case = CreateTaskUseCase(task_repository)
+    use_case = create_task_use_case_factory(db)
 
     command = CreateTaskCommand(
         title=input.title,
@@ -93,8 +79,7 @@ def edit_task(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    task_repository = SqlAlchemyTaskRepository(db)
-    use_case = EditTaskUseCase(task_repository)
+    use_case = edit_task_use_case_factory(db)
 
     command = EditTaskCommand(
         id=task_id,
@@ -124,8 +109,7 @@ def delete_task(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    task_repository = SqlAlchemyTaskRepository(db)
-    use_case = DeleteTaskUseCase(task_repository)
+    use_case = delete_task_use_case_factory(db)
     command = DeleteTaskCommand(id=task_id)
     try:
         use_case.execute(command)
@@ -149,8 +133,7 @@ def search_tasks(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    task_repository = SqlAlchemyTaskRepository(db)
-    use_case = SearchTasksUseCase(task_repository)
+    use_case = search_tasks_use_case_factory(db)
 
     limit = per_page
     offset = (page - 1) * per_page
@@ -187,8 +170,7 @@ def list_all_tasks(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    task_repository = SqlAlchemyTaskRepository(db)
-    use_case = ListAllTasksByUserUseCase(task_repository)
+    use_case = list_all_tasks_by_user_use_case_factory(db)
 
     try:
         tasks = use_case.execute(current_user.get("id"))
@@ -207,8 +189,7 @@ def list_task_by_id(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    task_repository = SqlAlchemyTaskRepository(db)
-    use_case = ListTaskByIdUseCase(task_repository)
+    use_case = list_task_by_id_use_case_factory(db)
 
     try:
         task = use_case.execute(task_id)
