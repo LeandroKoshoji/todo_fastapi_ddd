@@ -8,8 +8,9 @@ MAX_USERNAME_LENGTH = 255
 MIN_USERNAME_LENGTH = 3
 
 
+@dataclass
 class UserId:
-    id: uuid.UUID
+    id: uuid.UUID = field(default_factory=uuid.uuid4)
 
 
 @dataclass
