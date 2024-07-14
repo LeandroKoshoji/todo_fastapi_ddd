@@ -16,6 +16,7 @@ uvicorn = "^0.30.1"
 psycopg2 = "^2.9.9"
 passlib = "^1.7.4"
 python-jose = "^3.3.0"
+pytest-watch = "^4.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -41,13 +42,16 @@ quote-style = 'single'
 [tool.pytest.ini_options]
 pythonpath = "."
 addopts = '-p no:warnings'
+markers = ["unit: unit tests", "integration: integration tests"]
 
 [tool.taskipy.tasks]
 lint = 'ruff check . && ruff check . --diff'
 format = 'ruff check . --fix && ruff format .'
 run = 'fastapi dev app/main.py'
 pre_test = 'task lint'
-test = 'pytest -s -x --cov=app -vv'
+test_unit = "pytest -m unit -s -x --cov=app -vv"
+test_integration = "pytest -m integration -s -x --cov=app -vv"
+test_watch_integration = "ptw -- -m integration -s --cov=app -vv"
 post_test = 'coverage html'
 docker_dev_exec = 'docker-compose -f docker-compose.dev.yml exec app sh'
 docker_dev_up = 'docker-compose -f docker-compose.dev.yml up --build'
