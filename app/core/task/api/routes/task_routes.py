@@ -1,16 +1,26 @@
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.params import Query
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.core.shared.application.schemas.response import (
+    PaginatedResponseModel,
+    ResponseModel,
+)
 from app.core.shared.application.utils import (
     paginated_response,
     success_response,
 )
 from app.core.shared.infra.database.database import get_db
 from app.core.shared.security.dependecies import get_current_user
+from app.core.task.api.schemas.task_schemas import (
+    CreateTaskResponseModel,
+    CreateTaskSchema,
+    EditTaskResponseModel,
+    EditTaskSchema,
+    ListTaskByIdResponseModel,
+)
 from app.core.task.application.use_cases.create_task_use_case import (
     CreateTaskUseCase,
 )
@@ -42,14 +52,11 @@ from app.core.task.infra.repositories.sqlalchemy_task_repository import (
 router = APIRouter()
 
 
-class CreateTaskSchema(BaseModel):
-    title: str
-    status: str
-    description: str
-    send_notification: bool
-
-
-@router.post("/")
+@router.post(
+    "/",
+    response_model=ResponseModel[CreateTaskResponseModel],
+    status_code=status.HTTP_201_CREATED
+)
 def create_task(
     input: CreateTaskSchema,
     current_user=Depends(get_current_user),
@@ -75,10 +82,14 @@ def create_task(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.put("/{task_id}", status_code=200)
+@router.put(
+    "/{task_id}",
+    response_model=ResponseModel[EditTaskResponseModel],
+    status_code=status.HTTP_200_OK
+)
 def edit_task(
     task_id: str,
-    input: CreateTaskSchema,
+    input: EditTaskSchema,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -103,7 +114,11 @@ def edit_task(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.delete("/{task_id}", status_code=200)
+@router.delete(
+    "/{task_id}",
+    response_model=ResponseModel[None],
+    status_code=status.HTTP_200_OK
+)
 def delete_task(
     task_id: str,
     current_user=Depends(get_current_user),
@@ -119,7 +134,11 @@ def delete_task(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get('/search')
+@router.get(
+    '/search',
+    response_model=PaginatedResponseModel[ListTaskByIdResponseModel],
+    status_code=status.HTTP_200_OK
+)
 def search_tasks(
     title: Optional[str] = Query(None),
     description: Optional[str] = Query(None),
@@ -159,7 +178,11 @@ def search_tasks(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/")
+@router.get(
+    "/",
+    response_model=ResponseModel[List[ListTaskByIdResponseModel]],
+    status_code=status.HTTP_200_OK
+)
 def list_all_tasks(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -174,7 +197,11 @@ def list_all_tasks(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/{task_id}")
+@router.get(
+    "/{task_id}",
+    response_model=ResponseModel[ListTaskByIdResponseModel],
+    status_code=status.HTTP_200_OK
+)
 def list_task_by_id(
     task_id: str,
     current_user=Depends(get_current_user),

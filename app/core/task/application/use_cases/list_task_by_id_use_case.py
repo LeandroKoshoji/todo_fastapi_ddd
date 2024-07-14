@@ -8,4 +8,4 @@ class ListTaskByIdUseCase:
 
     def execute(self, task_id: str) -> Task:
         task = self.task_repository.get_task_by_id(task_id)
-        return task
+        return task.to_dict()

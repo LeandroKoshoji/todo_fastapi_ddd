@@ -9,4 +9,5 @@ class ListAllTasksByUserUseCase:
         self.task_repository = task_repository
 
     def execute(self, user_id: str) -> List[Task]:
-        return self.task_repository.get_tasks_by_user_id(user_id)
+        task = self.task_repository.get_tasks_by_user_id(user_id)
+        return [t.to_dict() for t in task]

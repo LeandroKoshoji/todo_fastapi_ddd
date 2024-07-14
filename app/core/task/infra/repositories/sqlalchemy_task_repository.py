@@ -71,7 +71,10 @@ class SqlAlchemyTaskRepository(TaskRepository):
 
     def get_tasks_by_user_id(self, user_id: uuid.UUID) -> list[Task]:
         task_models = self.db.query(TaskModel).filter_by(user_id=user_id).all()
-        return [SqlAlchemyTaskRepository._map_to_domain(task_model) for task_model in task_models]
+        return [
+            SqlAlchemyTaskRepository._map_to_domain(task_model)
+            for task_model in task_models
+        ]
 
     def search_tasks(self, filters: SearchTaskFilters) -> list[Task]:
         query = self.db.query(TaskModel).filter_by(user_id=filters.user_id)
@@ -87,9 +90,13 @@ class SqlAlchemyTaskRepository(TaskRepository):
                 TaskModel.send_notification == filters.send_notification)
         total = query.count()
         task_models = query.offset(filters.offset).limit(filters.limit).all()
-        return [
-            SqlAlchemyTaskRepository._map_to_domain(task_model) for task_model in task_models
-        ], total
+        return (
+            [
+                SqlAlchemyTaskRepository._map_to_domain(task_model)
+                for task_model in task_models
+            ],
+            total
+        )
 
     @staticmethod
     def _map_to_domain(task_model: TaskModel) -> Task:
