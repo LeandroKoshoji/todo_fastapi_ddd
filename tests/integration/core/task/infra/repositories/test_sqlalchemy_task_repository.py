@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.task.domain.task import Task
 from app.core.task.domain.task_repository import SearchTaskFilters
 from app.core.task.infra.repositories.sqlalchemy_task_repository import SqlAlchemyTaskRepository
-from tests.helpers import create_task, create_user
+from tests.helpers import create_tasks, create_user
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def test_update_task(
     task_repository: SqlAlchemyTaskRepository,
     db_session: Session
 ):
-    task = create_task(db_session)
+    task = create_tasks(db_session)[0]
 
     task.title = "Updated Task"
     task.status = "done"
@@ -63,7 +63,7 @@ def test_delete_task(
     task_repository: SqlAlchemyTaskRepository,
     db_session: Session
 ):
-    task = create_task(db_session)
+    task = create_tasks(db_session)[0]
 
     task_repository.delete_task(task.id)
 
@@ -76,12 +76,12 @@ def test_get_task_by_id(
     task_repository: SqlAlchemyTaskRepository,
     db_session: Session
 ):
-    task = create_task(db_session)
+    task = create_tasks(db_session)[0]
 
     retrieved_task = task_repository.get_task_by_id(task.id)
     assert retrieved_task is not None
-    assert retrieved_task.title == "Test Task"
-    assert retrieved_task.description == "Test Description"
+    assert retrieved_task.title == "Test Task 1"
+    assert retrieved_task.description == "Test Description 1"
     assert retrieved_task.user_id == task.user_id
     assert retrieved_task.status == "pending"
     assert retrieved_task.send_notification is True
@@ -93,37 +93,17 @@ def test_get_tasks_by_user_id(
     db_session: Session
 ):
     user = create_user(db_session)
-    task1 = Task(
-        title="Test Task 1",
-        description="Test Description 1",
-        user_id=user.id,
-        status="pending",
-        send_notification=True
-    )
-    task2 = Task(
-        title="Test Task 2",
-        description="Test Description 2",
-        user_id=user.id,
-        status="pending",
-        send_notification=True
-    )
-
-    task_repository.save_task(task1)
-    task_repository.save_task(task2)
+    create_tasks(db_session, 10, user_id=user.id)
 
     tasks_in_db = task_repository.get_tasks_by_user_id(user.id)
 
-    assert len(tasks_in_db) == 2
-    assert tasks_in_db[0].title == "Test Task 1"
-    assert tasks_in_db[1].title == "Test Task 2"
-    assert tasks_in_db[0].description == "Test Description 1"
-    assert tasks_in_db[1].description == "Test Description 2"
-    assert tasks_in_db[0].user_id == user.id
-    assert tasks_in_db[1].user_id == user.id
-    assert tasks_in_db[0].status == "pending"
-    assert tasks_in_db[1].status == "pending"
-    assert tasks_in_db[0].send_notification is True
-    assert tasks_in_db[1].send_notification is True
+    assert len(tasks_in_db) == 10
+    for i, task in enumerate(tasks_in_db):
+        assert task.title == f"Test Task {i+1}"
+        assert task.description == f"Test Description {i+1}"
+        assert task.user_id == user.id
+        assert task.status == "pending"
+        assert task.send_notification is True
 
 
 @pytest.mark.integration
@@ -131,10 +111,28 @@ def test_search_tasks_should_return_all_user_tasks_when_filters_is_not_empty(
     task_repository: SqlAlchemyTaskRepository,
     db_session: Session
 ):
-    task = create_task(db_session)
+    user = create_user(db_session)
+    create_tasks(
+        db_session,
+        2,
+        user_id=user.id,
+        status="pending"
+    )
+    create_tasks(
+        db_session,
+        2,
+        user_id=user.id,
+        status="on_going"
+    )
+    create_tasks(
+        db_session,
+        2,
+        user_id=user.id,
+        status="done"
+    )
 
     filters = SearchTaskFilters(
-        user_id=task.user_id,
+        user_id=user.id,
         title=None,
         description=None,
         status=None,
@@ -145,12 +143,15 @@ def test_search_tasks_should_return_all_user_tasks_when_filters_is_not_empty(
 
     tasks_in_db, total = task_repository.search_tasks(filters)
 
-    assert total == 1
-    assert len(tasks_in_db) == 1
-    assert tasks_in_db[0].title == "Test Task"
-    assert tasks_in_db[0].description == "Test Description"
-    assert tasks_in_db[0].status == "pending"
-    assert tasks_in_db[0].send_notification is True
+    pending_tasks = [task for task in tasks_in_db if task.status == "pending"]
+    ongoing_tasks = [task for task in tasks_in_db if task.status == "on_going"]
+    done_tasks = [task for task in tasks_in_db if task.status == "done"]
+
+    assert total == 6
+    assert len(tasks_in_db) == 6
+    assert len(pending_tasks) == 2
+    assert len(ongoing_tasks) == 2
+    assert len(done_tasks) == 2
 
 
 @pytest.mark.integration
@@ -158,7 +159,7 @@ def test_search_tasks_should_return_empty_list_when_no_task_is_found(
     task_repository: SqlAlchemyTaskRepository,
     db_session: Session
 ):
-    task = create_task(db_session)
+    task = create_tasks(db_session)[0]
     filters = SearchTaskFilters(
         user_id=task.user_id,
         title='Non existent task',
