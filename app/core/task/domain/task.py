@@ -11,6 +11,11 @@ MAX_TITLE_LENGTH = 255
 MAX_DESCRIPTION_LENGTH = 255
 
 
+@dataclass
+class TaskId:
+    id: uuid.UUID = field(default_factory=uuid.uuid4)
+
+
 class TaskStatus(str, Enum):
     PENDING = 'pending'
     ON_GOING = 'on_going'

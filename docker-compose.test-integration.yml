@@ -11,6 +11,7 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@db_test/postgres
     depends_on:
       - db_test
+    command: poetry run task test_watch_integration
 
   db_test:
     image: postgres:13
