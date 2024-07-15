@@ -2,8 +2,11 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from app.core.shared.infra.database.database import Base, get_db
+from app.core.shared.security.jwt import JWTService
 from app.main import app
 from fastapi.testclient import TestClient
+
+from tests.helpers import create_user
 
 # Config db url for tests - same as in docker-compose.test-integration.yml
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:postgres@db_test/postgres"
@@ -39,3 +42,18 @@ def client(db_session):
     with TestClient(app) as client:
         yield client
     app.dependency_overrides[get_db] = get_db
+
+
+@pytest.fixture(scope="function")
+def test_user(db_session):
+    return create_user(db_session)
+
+
+@pytest.fixture(scope="function")
+def auth_headers(test_user):
+    jwt_service = JWTService()
+    jwt = jwt_service.create_access_token(
+        {"sub": str(test_user.id)}).get('token')
+    return {
+        "Authorization": f"Bearer {jwt}"
+    }
